@@ -1,0 +1,124 @@
+function myFunction() {
+  
+  var pasta = "1Q-G8rtyFb17Fe9WxdL1ZLCRbLCnxoDHY"
+  var nome_aba = "IMPORTACAO"
+  var arquivos = DriveApp.getFolderById(pasta).getFiles()
+  var arq_recente = null, dta_recente = 0
+ try{
+
+  while(arquivos.hasNext()){
+
+    var arquivo = arquivos.next()
+    if(arquivo.getLastUpdated().getTime() > dta_recente){
+      arq_recente = arquivo
+      dta_recente = arquivo.getLastUpdated().getTime()
+    }
+
+  }
+  if(arq_recente){
+
+    var arq_csv = Utilities.parseCsv(arq_recente.getBlob().getDataAsString())
+    var aba = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nome_aba) ||
+    SpreadsheetApp.getActiveSpreadsheet().insertSheet(nome_aba)
+
+    aba.getRange(1,1,arq_csv.length,arq_csv[0].length).clear()
+    aba.getRange(1,1,arq_csv.length,arq_csv[0].length).setValues(arq_csv)
+  }
+
+  Browser.msgBox("Importação realizada com sucesso!")
+ }
+ catch(e){
+
+  Browser.msgBox("Erro na importacao do arquivo, verifique se o arquivo esta na pasta Arquivos Orcamento.")
+ }
+
+}
+
+function validacao(){
+
+  var planilha_importacao = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("IMPORTACAO")
+  var planilha_dados = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DADOS")
+  var ultimaLinha_importacao = planilha_importacao.getLastRow()
+  var ultimaLinha_dados = planilha_dados.getLastRow()
+
+  Logger.log(ultimaLinha_dados)
+  var dados_importacao = planilha_importacao.getRange(2,1,ultimaLinha_importacao,10).getValues()
+  var dados_dados = planilha_dados.getRange(2,1,ultimaLinha_dados,10).getValues()
+
+  try{
+    for(var j =0;j<ultimaLinha_importacao-1;j++){
+     //validar seqtitulo tbem ai nao precisa validar a parcela
+      if(exists(dados_dados,dados_importacao[j][0])){
+
+        planilha_importacao.getRange(j+2,12,1,1).setValue("Duplicada")
+        var index = dados_dados.findIndex(row => row[0] === dados_importacao[j][0])
+        Logger.log(planilha_dados.getRange(index+2,10,1,1))
+         Logger.log(dados_importacao[j][9])
+      if(planilha_dados.getRange(index+2,10,1,1) != dados_importacao[j][9]){
+
+        planilha_dados.getRange(index+2,10,1,1).setValue(dados_importacao[j][9])
+
+      }
+        
+      }
+    }
+
+    for(var i=2;i<=ultimaLinha_importacao;i++){
+
+      if(planilha_importacao.getRange(i,12,1,1).getValue()=="Duplicada"){
+
+        planilha_importacao.deleteRow(i)
+      }
+
+    }
+
+    Browser.msgBox("Validação realizada com sucesso!")
+  }
+  catch(e){
+
+    console.error('Erro na funcao validacao(): ' + e)
+    Browser.msgBox("Ocorreu um erro na validacao, verifique!")
+  }
+}
+
+function exists(arr, search) {
+    return arr.some(row => row.includes(search));
+}
+
+function inserirdados(){
+
+  var planilha_importacao = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("IMPORTACAO")
+  var planilha_dados = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DADOS")
+  var ultimaLinha_importacao = planilha_importacao.getLastRow()
+  var ultimaLinha_dados = planilha_dados.getLastRow()
+
+  var dados_importacao = planilha_importacao.getRange(2,1,ultimaLinha_importacao,11).getValues()
+
+  for(var i=0;i<ultimaLinha_importacao;i++){
+
+    if(isNaN(dados_importacao[i][10])){
+
+      planilha_dados.appendRow(dados_importacao[i])
+      planilha_importacao.getRange(i+2,1,1,11).setBackground("red")
+      planilha_importacao.getRange(i+2,12,1,1).setValue("Importado")
+      
+
+    }
+  }
+
+  var botao = Browser.msgBox('Atenção', 'Deseja apagar os dados importados?', Browser.Buttons.YES_NO)
+Logger.log(botao)
+  if(botao == "yes"){
+
+    for(var i = 2;i<=ultimaLinha_importacao;i++){
+
+      if(planilha_importacao.getRange(i,12,1,1)=="Importado"){
+
+        planilha_importacao.deleteRow(i)
+
+      }
+    }
+
+  }
+
+}
