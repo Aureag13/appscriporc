@@ -1,0 +1,23 @@
+function tela() {
+  
+  var html = HtmlService.createHtmlOutputFromFile("arquivo")
+  SpreadsheetApp.getUi().showModalDialog(html,"Titulo")
+
+}
+function retornoGs(){
+
+  var dados = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("CLASSIFICACAO").getValues()
+  
+  var cabecalho = dados.filter(x=>isNaN(x))
+Logger.log(cabecalho)
+cabecalho = 	["ACABAMENTO", "ALVENARIA", "FUNDACAO", "PINTURA"]
+Logger.log(cabecalho)
+  return cabecalho
+}
+
+function gravaDados(inputs){
+
+  var planilha = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("GERAR")
+
+  planilha.appendRow([inputs])
+}
