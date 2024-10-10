@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <div id="bodyGenerico">
+
+    </div>
+    <br>
+    <br>
+    <div>
+      <button onclick="gerar()">
+        Gerar
+      </button>
+      <br>
+    </div>
+  </body>
+  <script>
+    google.script.run.withSuccessHandler(funcaoDoHTML).retornoGs()
+
+    function funcaoDoHTML(cabecalho){
+
+      for(var i = 0;i<cabecalho.length;i++){
+      document.getElementById('bodyGenerico').innerHTML =
+      document.getElementById('bodyGenerico').innerHTML +
+      `<div>
+        <label>`+cabecalho[i]+`</label>
+        <input type="text" class="inputDados" id="`+cabecalho[i]+`">        
+      </div><br>`
+      }
+    }
+
+    function gerar(){
+
+      var input = document.getElementsByClassName('inputDados')
+      var tamanho = input.length
+      var inputs = []
+
+      for(var i=0;i<tamanho;i++){
+
+        inputs.push(input[i].value)
+      }
+      
+      for(var i=0;i<tamanho;i++){
+
+        input[i].value = ""
+      }
+      google.script.run.gravaDados(inputs)
+
+    }
+  </script>
+</html>
