@@ -1,0 +1,22 @@
+function fetchExample() {
+ let response = UrlFetchApp.fetch("https://api.adviceslip.com/advice",{
+          "headers":{
+            "Accept":"application/json"
+          }
+        });
+ var fact = JSON.parse(response.getContentText());
+       var idList = []
+
+      fact = fact["slip"]
+       // idList.push(fact["id"],fact["advice"]); //esse funciona
+       Logger.log(fact.JSON())
+      const dataArray = fact.map(item => [item.id, item.advice]);
+      
+Logger.log(dataArray)
+     // Logger.log(idList);
+
+ // Logger.log([keys.map(k => fact[k])]);
+ Logger.log(response);
+ //Logger.log(fact["id"])
+
+}
