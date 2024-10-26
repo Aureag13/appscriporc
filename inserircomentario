@@ -1,0 +1,17 @@
+function inserirComentario() {
+
+  var aba = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("comentario")
+  var coluna = aba.getLastColumn()
+  var intervalo = aba.getRange(1,1,1,coluna).getValues()
+  intervalo = intervalo.flat()
+
+  var cod_desc = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("cod_desc").getValues()
+
+  for(var i = 0;i<coluna ;i++){
+
+    var descricao = cod_desc.filter(x=>x[0]==intervalo[i])
+    descricao = descricao.toString().substring(descricao.toString().indexOf(",")+1)
+    aba.getRange(1,i+1,1,1).setComment(descricao)
+  }
+  
+}
